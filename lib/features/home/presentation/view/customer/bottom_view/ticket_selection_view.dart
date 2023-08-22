@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:khalti_flutter/khalti_flutter.dart';
 import 'package:movie_ticket_booking/core/common/widget/toast_message.dart';
 import 'package:movie_ticket_booking/features/booking/domain/entity/booking_entity.dart';
-import 'package:movie_ticket_booking/features/booking/domain/entity/seat.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
 
 import '../../../../../../config/router/app_route.dart';
@@ -21,6 +21,8 @@ class _TicketViewSelectionState extends ConsumerState<TicketViewSelection> {
   late MovieEntity movie;
 
   late String movieId;
+
+  BookingEntity? bookingEntity;
   @override
   void didChangeDependencies() {
     movie = ModalRoute.of(context)!.settings.arguments as MovieEntity;
@@ -34,13 +36,48 @@ class _TicketViewSelectionState extends ConsumerState<TicketViewSelection> {
   // final List<SeatEntity> _selectedSeats = [];
   final List<dynamic> _selectedSeats = [];
 
+  void _openKhaltiPaymentView(context) {
+    var config = PaymentConfig(
+      amount: _selectedSeats.length * 100,
+      productIdentity: movie.id.toString(),
+      productName: movie.title,
+      // productUrl: 'https://www.khalti.com/#/bazaar',
+      additionalData: {
+        'vendor': 'Sanjiv Foundation',
+      },
+    );
+
+    KhaltiScope.of(context).pay(
+      config: config,
+      preferences: [
+        PaymentPreference.khalti,
+        PaymentPreference.connectIPS,
+        PaymentPreference.eBanking,
+        PaymentPreference.sct,
+      ],
+      onSuccess: (successModel) {
+        ref
+            .watch(bookingViewModelProvider.notifier)
+            .createReservation(context, movie.id.toString(), bookingEntity!);
+        // showToastMessage(
+        //     message: 'Payment success.', backgroundColor: Colors.green);
+      },
+      onFailure: (failureModel) {
+        showToastMessage(message: 'Failed to payment.');
+      },
+      onCancel: () {
+        showToastMessage(message: 'Transaction cancellation');
+      },
+    );
+  }
+
   void _handleBooking(BuildContext context) {
     if (_selectedSeats.isEmpty) {
       showToastMessage(message: 'Please select at least one seat');
       return;
     }
 
-    BookingEntity bookingEntity = BookingEntity(
+    bookingEntity = BookingEntity(
       movieId: movie.id,
       userName: 'user',
       movieName: movie.title,
@@ -66,9 +103,10 @@ class _TicketViewSelectionState extends ConsumerState<TicketViewSelection> {
         ),
         DialogButton(
           onPressed: () {
-            ref
-                .watch(bookingViewModelProvider.notifier)
-                .createReservation(context, movie.id.toString(), bookingEntity);
+            _openKhaltiPaymentView(context);
+            // ref
+            //     .watch(bookingViewModelProvider.notifier)
+            //     .createReservation(context, movie.id.toString(), bookingEntity);
           },
           gradient: const LinearGradient(colors: [
             Color.fromRGBO(116, 116, 191, 1.0),
@@ -126,17 +164,14 @@ class _TicketViewSelectionState extends ConsumerState<TicketViewSelection> {
                           _isSelected[i] = true;
                         });
 
-                        SeatEntity seatEntity = SeatEntity('${i + 1}');
-
                         _selectedSeats.add('${i + 1}');
-                        // _selectedSeats.add(seatEntity);
                       },
                     ),
                   }
                 ],
               ),
             ),
-            const SizedBox(height: 20),
+            // const SizedBox(height: 20),
             Text('Selected Seats: ${_selectedSeats.join(', ')}'),
             Text(
                 'Total selected seats: ${_isSelected.where((element) => element).length}'),
@@ -144,13 +179,9 @@ class _TicketViewSelectionState extends ConsumerState<TicketViewSelection> {
             ElevatedButton(
               onPressed: () {
                 _handleBooking(context);
-                // Navigator.of(context).pushNamed('/booking', arguments: {
-                //   'movie': movie,
-                //   'seats': _selectedSeats,
-                // });
               },
-              child: const Text('Book Now'),
-            ),
+              child: const Text('Pay and'),
+            )
           ],
         ),
       ),
