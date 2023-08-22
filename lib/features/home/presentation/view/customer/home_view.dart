@@ -16,11 +16,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
   int selectedIndex = 0;
   List<Widget> lstScreen = [
     const CustomerDashboard(),
-
     const AllMoviesView(),
-    // const PaymentView(),
-    // const TicketView(),
-    // const MovieView(),
     const CustomerBookingView()
   ];
   @override
@@ -34,18 +30,6 @@ class _HomeViewState extends ConsumerState<HomeView> {
             label: 'Dashboard',
             backgroundColor: Colors.black,
           ),
-          // BottomNavigationBarItem(
-          //   icon: Icon(Icons.payment),
-          //   label: 'Payment',
-          // ),
-          // BottomNavigationBarItem(
-          //   icon: Icon(Icons.airplane_ticket),
-          //   label: 'Ticket',
-          // ),
-          // BottomNavigationBarItem(
-          //   icon: Icon(Icons.movie),
-          //   label: 'Movie',
-          // ),
           BottomNavigationBarItem(
             icon: Icon(Icons.house),
             label: 'View All Movies',

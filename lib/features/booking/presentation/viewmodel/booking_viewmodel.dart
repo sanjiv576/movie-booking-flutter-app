@@ -34,7 +34,8 @@ class BookingViewModel extends StateNotifier<BookingState> {
       },
       (r) {
         state = state.copyWith(isLoading: false, error: null);
-        showToastMessage(message: 'Booked successfully');
+        showToastMessage(message: 'Payment and Booked successfully');
+        getAllBookings();
         Navigator.pushNamed(context, AppRoute.homeRoute);
       },
     );

@@ -20,7 +20,6 @@ class _LoginViewState extends ConsumerState<LoginView> {
 
   void submit() {
     if (formKey.currentState!.validate()) {
-    
 
       ref.watch(authViewModelProvider.notifier).login(
             context,

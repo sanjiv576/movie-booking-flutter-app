@@ -23,8 +23,6 @@ class _AllMoviesViewState extends ConsumerState<AllMoviesView> {
   Widget build(BuildContext context) {
     var movieState = ref.watch(movieViewModelProvider);
     var authState = ref.watch(authViewModelProvider);
-    // print('Auth role : ${authState.userEntity!.role}');
-    // print('Length of movie list is ${movieState.allMovies.length}}');
 
     return Scaffold(
       appBar: AppBar(
